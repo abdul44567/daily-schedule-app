@@ -1,16 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import PageTitle from "../components/pageTitle";
 
 const ClockSuite = () => {
-  const [activeTab, setActiveTab] = useState<"clock" | "stopwatch" | "timer">("clock");
+  const [activeTab, setActiveTab] = useState<"clock" | "stopwatch" | "timer">(
+    "clock"
+  );
 
   return (
     <div className="min-screen bg-gradient-to-br from-purple-200 to-white flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl p-6 sm:p-10">
-        <h1 className="text-4xl sm:text-5xl font-bold text-center text-purple-800 mb-8">
-          🕒 Clock Suite
-        </h1>
+        <PageTitle text="🕒 Clock Suite" />
 
         <div className="flex justify-center flex-wrap gap-4 mb-8">
           {["clock", "stopwatch", "timer"].map((tab) => (
@@ -162,23 +163,26 @@ const Timer = () => {
     e: React.ChangeEvent<HTMLInputElement>,
     type: "minutes" | "seconds"
   ) => {
-    const value = Math.max(0, Math.min(type === "seconds" ? 59 : 999, parseInt(e.target.value) || 0));
+    const value = Math.max(
+      0,
+      Math.min(type === "seconds" ? 59 : 999, parseInt(e.target.value) || 0)
+    );
     if (type === "minutes") {
       setInputMinutes(value);
       if (!running) setMinutes(value);
-      if(value > 0 || inputSeconds > 0) setHasSetTimer(true);
-      else if(value === 0 && inputSeconds === 0) setHasSetTimer(false);
+      if (value > 0 || inputSeconds > 0) setHasSetTimer(true);
+      else if (value === 0 && inputSeconds === 0) setHasSetTimer(false);
     } else {
       setInputSeconds(value);
       if (!running) setSeconds(value);
-      if(inputMinutes > 0 || value > 0) setHasSetTimer(true);
-      else if(inputMinutes === 0 && value === 0) setHasSetTimer(false);
+      if (inputMinutes > 0 || value > 0) setHasSetTimer(true);
+      else if (inputMinutes === 0 && value === 0) setHasSetTimer(false);
     }
   };
 
   const handleStart = () => {
     // Only show alert if timer NOT set (hasSetTimer = false)
-    if (!hasSetTimer && (minutes === 0 && seconds === 0)) {
+    if (!hasSetTimer && minutes === 0 && seconds === 0) {
       showTimedAlert("Please set the timer first!");
       return;
     }
@@ -208,7 +212,12 @@ const Timer = () => {
       </div>
       <div className="flex justify-center gap-4 mb-4">
         <div className="flex flex-col items-center">
-          <label htmlFor="minutesInput" className="mb-1 font-semibold text-purple-700">Min</label>
+          <label
+            htmlFor="minutesInput"
+            className="mb-1 font-semibold text-purple-700"
+          >
+            Min
+          </label>
           <input
             id="minutesInput"
             type="number"
@@ -222,7 +231,12 @@ const Timer = () => {
           />
         </div>
         <div className="flex flex-col items-center">
-          <label htmlFor="secondsInput" className="mb-1 font-semibold text-purple-700">Sec</label>
+          <label
+            htmlFor="secondsInput"
+            className="mb-1 font-semibold text-purple-700"
+          >
+            Sec
+          </label>
           <input
             id="secondsInput"
             type="number"

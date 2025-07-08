@@ -1,246 +1,332 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Check, Trash2, Pencil } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { StickyNote, Edit2, Trash2, X } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "@hello-pangea/dnd";
+import PageTitle from "./pageTitle";
 
-interface Todo {
-  id: number;
+type Task = {
   text: string;
-  done: boolean;
-  category: string;
-}
+  completed: boolean;
+  details?: string;
+};
 
-export default function TodoList() {
-  const categories = ['Work', 'Home', 'Personal', 'Shopping', 'Others'];
+const categories = [
+  {
+    key: "must",
+    label: "MUST DO",
+    color: "bg-indigo-300",
+    bg: "bg-indigo-800",
+  },
+  { key: "should", label: "SHOULD DO", color: "bg-sky-300", bg: "bg-sky-800" },
+  {
+    key: "could",
+    label: "COULD DO",
+    color: "bg-green-300",
+    bg: "bg-green-800",
+  },
+  {
+    key: "ifTime",
+    label: "IF I HAVE TIME",
+    color: "bg-pink-300",
+    bg: "bg-pink-800",
+  },
+];
 
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [input, setInput] = useState('');
-  const [editId, setEditId] = useState<number | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState('Others');
-  const [dateTime, setDateTime] = useState(new Date());
-  const [notification, setNotification] = useState<{
-    message: string;
-    type: 'success' | 'danger';
+export default function TodoBoard() {
+  const [todos, setTodos] = useState<Record<string, Task[]>>({
+    must: [],
+    should: [],
+    could: [],
+    ifTime: [],
+  });
+
+  const [inputValues, setInputValues] = useState<Record<string, string>>({
+    must: "",
+    should: "",
+    could: "",
+    ifTime: "",
+  });
+
+  const [editMode, setEditMode] = useState<Record<string, number | null>>({
+    must: null,
+    should: null,
+    could: null,
+    ifTime: null,
+  });
+
+  const [detailInputs, setDetailInputs] = useState<Record<string, string>>({});
+  const [activeNote, setActiveNote] = useState<{
+    key: string;
+    index: number;
   } | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('todos');
-    if (stored) setTodos(JSON.parse(stored));
+    const stored = localStorage.getItem("todos");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setTodos(parsed);
+      } catch (e) {
+        console.error("Invalid todos in localStorage", e);
+      }
+    }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('todos', JSON.stringify(todos));
+    localStorage.setItem("todos", JSON.stringify(todos));
   }, [todos]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDateTime(new Date());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  const handleAddOrUpdate = (key: string) => {
+    const text = inputValues[key].trim();
+    if (!text) return;
 
-  const showNotification = (message: string, type: 'success' | 'danger') => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 5000);
-  };
-
-  const addOrEditTodo = () => {
-    if (!input.trim()) return;
-
-    // Check if input matches any category (case-insensitive)
-    const matchedCategory = categories.find(
-      cat => cat.toLowerCase() === input.trim().toLowerCase()
-    );
-
-    const categoryToUse = matchedCategory ?? selectedCategory;
-
-    if (editId !== null) {
-      setTodos(prev =>
-        prev.map(todo =>
-          todo.id === editId ? { ...todo, text: input, category: categoryToUse } : todo
-        )
-      );
-      showNotification('Task updated successfully!', 'success');
-      setEditId(null);
-    } else {
-      const newTodo: Todo = {
-        id: Date.now(),
-        text: input,
-        done: false,
-        category: categoryToUse,
+    if (editMode[key] !== null) {
+      const updatedTasks = [...todos[key]];
+      updatedTasks[editMode[key]!] = {
+        ...updatedTasks[editMode[key]!],
+        text,
       };
-      setTodos(prev => [...prev, newTodo]);
-      showNotification('New task added!', 'success');
+      setTodos((prev) => ({ ...prev, [key]: updatedTasks }));
+      setEditMode((prev) => ({ ...prev, [key]: null }));
+      toast.success("Task updated!");
+    } else {
+      setTodos((prev) => ({
+        ...prev,
+        [key]: [{ text, completed: false }, ...prev[key]],
+      }));
+      toast.success("Task added!");
     }
-    setInput('');
+
+    setInputValues((prev) => ({ ...prev, [key]: "" }));
   };
 
-  const toggleTodo = (id: number) => {
-    setTodos(prev =>
-      prev.map(todo =>
-        todo.id === id ? { ...todo, done: !todo.done } : todo
-      )
-    );
-    if (editId === id) {
-      setEditId(null);
-      setInput('');
-    }
+  const handleDelete = (key: string, index: number) => {
+    const updatedTasks = [...todos[key]];
+    updatedTasks.splice(index, 1);
+    setTodos((prev) => ({ ...prev, [key]: updatedTasks }));
+    toast.success("Task deleted");
   };
 
-  const deleteTodo = (id: number) => {
-    setTodos(prev => prev.filter(todo => todo.id !== id));
-    showNotification('Task deleted!', 'danger');
-    if (editId === id) {
-      setEditId(null);
-      setInput('');
-    }
+  const handleEdit = (key: string, index: number) => {
+    setInputValues((prev) => ({ ...prev, [key]: todos[key][index].text }));
+    setEditMode((prev) => ({ ...prev, [key]: index }));
   };
 
-  const startEdit = (todo: Todo) => {
-    if (todo.done) return;
-    setEditId(todo.id);
-    setInput(todo.text);
-    setSelectedCategory(todo.category);
+  const handleToggleComplete = (key: string, index: number) => {
+    const updatedTasks = [...todos[key]];
+    updatedTasks[index].completed = !updatedTasks[index].completed;
+    setTodos((prev) => ({ ...prev, [key]: updatedTasks }));
+  };
+
+  const openStickyNote = (key: string, index: number) => {
+    setActiveNote({ key, index });
+    setDetailInputs((prev) => ({
+      ...prev,
+      [`${key}-${index}`]: todos[key][index].details || "",
+    }));
+  };
+
+  const saveStickyNote = () => {
+    if (!activeNote) return;
+
+    const { key, index } = activeNote;
+    const detailKey = `${key}-${index}`;
+    const details = detailInputs[detailKey]?.trim() || "";
+
+    const updatedTasks = [...todos[key]];
+    updatedTasks[index] = {
+      ...updatedTasks[index],
+      details,
+    };
+
+    setTodos((prev) => ({ ...prev, [key]: updatedTasks }));
+    setActiveNote(null);
+    toast.success("Details saved!");
+  };
+
+  const handleDragEnd = (result: DropResult) => {
+    const { source, destination } = result;
+    if (!destination) return;
+
+    const sourceTasks = [...todos[source.droppableId]];
+    const destTasks = [...todos[destination.droppableId]];
+    const [movedTask] = sourceTasks.splice(source.index, 1);
+
+    if (source.droppableId === destination.droppableId) {
+      sourceTasks.splice(destination.index, 0, movedTask);
+      setTodos((prev) => ({
+        ...prev,
+        [source.droppableId]: sourceTasks,
+      }));
+    } else {
+      destTasks.splice(destination.index, 0, movedTask);
+      setTodos((prev) => ({
+        ...prev,
+        [source.droppableId]: sourceTasks,
+        [destination.droppableId]: destTasks,
+      }));
+    }
   };
 
   return (
-    <>
-      <div className="max-w-xl mx-auto mt-20 p-5 bg-white shadow-xl rounded-xl relative">
-        {/* Top Centered Date-Time Box */}
-        <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-[250px] text-center bg-purple-700 text-white px-4 py-2 rounded-full shadow-md text-sm font-semibold">
-          <span>{dateTime.toLocaleDateString()}</span>
-          <span className="mx-3">|</span>
-          <span>
-            {dateTime.toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-              hour12: true,
-            })}
-          </span>
-        </div>
+    <div className="flex flex-col gap-8 bg-gradient-to-br from-purple-200 to-white p-6 overflow-x-auto min-h-screen relative">
+      <Toaster position="top-right" />
 
-        {/* Heading */}
-        <div className="my-4">
-          <h2 className="text-2xl font-bold text-purple-700 flex items-center gap-2">
-            📝 <span>To-Do List</span>
-          </h2>
+      <PageTitle text="📝 My Todo Board" />
 
-          {/* Alert Notification */}
-          {notification && (
-            <div
-              className={`mt-3 px-4 py-2 text-sm rounded-md border transition duration-300 ${
-                notification.type === 'success'
-                  ? 'bg-green-100 text-green-800 border-green-300'
-                  : 'bg-red-100 text-red-800 border-red-300'
-              }`}
-            >
-              {notification.message}
-            </div>
-          )}
-        </div>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="flex flex-col sm:flex-row gap-4">
+          {categories.map(({ key, label, color, bg }) => (
+            <Droppable droppableId={key} key={key}>
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className={`${bg} rounded shadow-md flex-1 min-w-[250px] min-h-[400px] p-4 flex flex-col`}
+                >
+                  <div
+                    className={`${color} text-gray-800 rounded p-2 text-center font-bold text-lg mb-3`}
+                  >
+                    {label}
+                  </div>
 
-        {/* Categories row */}
-        <div className="flex gap-3 mb-3 justify-center flex-wrap">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1 rounded-full text-sm font-semibold cursor-pointer transition
-                ${
-                  selectedCategory === cat
-                    ? 'bg-purple-700 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-purple-300'
-                }`}
-            >
-              {cat}
-            </button>
+                  <div className="flex flex-col gap-2 flex-grow">
+                    {todos[key].map((task, i) => (
+                      <Draggable
+                        draggableId={`${key}-${i}`}
+                        index={i}
+                        key={`${key}-${i}`}
+                      >
+                        {(dragProvided) => (
+                          <div
+                            ref={dragProvided.innerRef}
+                            {...dragProvided.draggableProps}
+                            {...dragProvided.dragHandleProps}
+                            className={`relative flex items-start gap-2 border border-gray-300 p-2 rounded bg-white text-black shadow-sm text-sm transition-all duration-300 ${
+                              task.completed
+                                ? "line-through text-gray-400 bg-gray-100"
+                                : ""
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={task.completed}
+                              onChange={() => handleToggleComplete(key, i)}
+                              className="mt-1 cursor-pointer"
+                            />
+                            <div className="flex-1 whitespace-pre-wrap break-words">
+                              {task.text}
+                            </div>
+                            <div className="flex gap-2">
+                              <StickyNote
+                                size={16}
+                                className={`cursor-pointer ${
+                                  task.details
+                                    ? "text-yellow-500 fill-yellow-500"
+                                    : "text-gray-500"
+                                }`}
+                                onClick={() => openStickyNote(key, i)}
+                              />
+                              <Edit2
+                                size={16}
+                                className="text-blue-600 cursor-pointer"
+                                onClick={() => handleEdit(key, i)}
+                              />
+                              <Trash2
+                                size={16}
+                                className="text-red-500 cursor-pointer"
+                                onClick={() => handleDelete(key, i)}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+
+                  <div className="mt-3 flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Add a task..."
+                      value={inputValues[key]}
+                      onChange={(e) =>
+                        setInputValues((prev) => ({
+                          ...prev,
+                          [key]: e.target.value,
+                        }))
+                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddOrUpdate(key);
+                        }
+                      }}
+                      className="flex-1 text-white px-2 py-1 rounded border border-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm bg-gray-800 placeholder-gray-400"
+                    />
+                    <button
+                      onClick={() => handleAddOrUpdate(key)}
+                      className="px-3 py-1 bg-indigo-500 text-white text-sm rounded hover:bg-indigo-600 transition-all cursor-pointer"
+                    >
+                      {editMode[key] !== null ? "Update" : "Add"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </Droppable>
           ))}
         </div>
+      </DragDropContext>
 
-        {/* Input field and button */}
-        <div className="flex gap-2 mb-4">
-          <input
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter') addOrEditTodo();
-              else if (e.key === 'Escape') {
-                setInput('');
-                setEditId(null);
+      {activeNote && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-yellow-100 p-6 rounded-lg shadow-xl w-full max-w-md relative">
+            <button
+              onClick={() => setActiveNote(null)}
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
+            >
+              <X size={20} />
+            </button>
+            <h3 className="text-lg font-bold mb-2 text-yellow-800">
+              {todos[activeNote.key][activeNote.index].text}
+            </h3>
+            <textarea
+              value={
+                detailInputs[`${activeNote.key}-${activeNote.index}`] || ""
               }
-            }}
-            placeholder="Write a task..."
-            className="flex-1 border border-gray-300 px-4 py-2 rounded-md text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          />
-          <button
-            onClick={addOrEditTodo}
-            className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 text-sm cursor-pointer"
-          >
-            {editId !== null ? 'Update' : 'Add'}
-          </button>
-        </div>
-
-        {/* Todo List grouped by categories */}
-        {categories.map(cat => (
-          <div key={cat} className="mb-6">
-            <h3 className="text-lg font-semibold text-purple-700 mb-2">{cat}</h3>
-            <div className="space-y-3">
-              {todos.filter(todo => todo.category === cat).length === 0 ? (
-                <p className="text-gray-400 text-sm italic">No tasks in this category.</p>
-              ) : (
-                todos
-                  .filter(todo => todo.category === cat)
-                  .map(todo => (
-                    <div
-                      key={todo.id}
-                      className="flex items-center justify-between p-3 border rounded-md bg-gray-50 hover:shadow transition"
-                    >
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => toggleTodo(todo.id)}
-                          className={`w-6 h-6 flex items-center justify-center border rounded-full cursor-pointer ${
-                            todo.done ? 'bg-green-500 text-white' : 'border-gray-400'
-                          }`}
-                          aria-label={todo.done ? "Mark as not done" : "Mark as done"}
-                        >
-                          {todo.done && <Check size={16} />}
-                        </button>
-                        <span
-                          className={`text-sm ${
-                            todo.done
-                              ? 'line-through text-gray-400'
-                              : 'text-gray-800'
-                          }`}
-                        >
-                          {todo.text}
-                        </span>
-                      </div>
-                      <div className="flex gap-2">
-                        {!todo.done && (
-                          <button
-                            onClick={() => startEdit(todo)}
-                            className="text-blue-500 hover:text-blue-700 cursor-pointer"
-                            aria-label="Edit task"
-                          >
-                            <Pencil size={18} />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => deleteTodo(todo.id)}
-                          className="text-red-500 hover:text-red-700 cursor-pointer"
-                          aria-label="Delete task"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  ))
-              )}
+              onChange={(e) =>
+                setDetailInputs((prev) => ({
+                  ...prev,
+                  [`${activeNote.key}-${activeNote.index}`]: e.target.value,
+                }))
+              }
+              placeholder="Add details for this task..."
+              className="w-full h-40 p-3 border border-yellow-300 rounded bg-yellow-50 text-yellow-900 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            />
+            <div className="flex justify-end mt-4 gap-2">
+              <button
+                onClick={() => setActiveNote(null)}
+                className="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveStickyNote}
+                className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
+              >
+                Save
+              </button>
             </div>
           </div>
-        ))}
-      </div>
-    </>
+        </div>
+      )}
+    </div>
   );
 }

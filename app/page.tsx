@@ -6,6 +6,7 @@ import CalendarButton from "./components/CalendarButton";
 import Greeting from "./components/Greeting";
 import WeatherButton from "./components/WeatherButton";
 import SleepTracker from "./components/SleepTracker";
+import PageTitle from "./components/pageTitle";
 
 export default function DailySchedule() {
   return (
@@ -15,9 +16,7 @@ export default function DailySchedule() {
         </div>
 
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-4xl font-bold text-center text-purple-800 mb-8">
-          🗓️ My Daily Schedule
-        </h1>
+        <PageTitle text="🗓️ My Daily Schedule" />
 
         <div className="space-y-4">
           {/* <ThemeToggle /> */}
@@ -38,3 +37,4 @@ export default function DailySchedule() {
     </div>
   );
 }
+            

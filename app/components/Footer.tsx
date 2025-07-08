@@ -4,10 +4,13 @@ import { Facebook, Twitter, Instagram } from "lucide-react";
 export default function Footer() {
   return (
     <footer className="bg-purple-800 text-white shadow">
-      <div className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
         {/* Logo / Brand */}
         <div className="flex flex-col items-center md:items-start">
-          <h2 className="text-xl font-bold">MyPlanner</h2>
+          <Link href="/" className="flex justify-center items-center gap-2">
+          <img src="/logo.png" alt="Logo" className="w-30 h-30 rounded-full" />
+          <span className="text-xl font-bold">MyPlanner</span>
+        </Link>
           <p className="text-sm mt-2">Plan your day, achieve your goals!</p>
         </div>
 
@@ -33,6 +36,16 @@ export default function Footer() {
             <li>
               <Link href="/todo" className="hover:underline">
                 To-Do List
+              </Link>
+            </li>
+            <li>
+              <Link href="/clock-suite" className="hover:underline">
+                Clock Suite
+              </Link>
+            </li>
+            <li>
+              <Link href="/Utilities" className="hover:underline">
+                Utilities
               </Link>
             </li>
           </ul>

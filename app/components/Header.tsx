@@ -14,20 +14,21 @@ export default function Header() {
     { href: "/calendar", label: "Calendar" },
     { href: "/todo", label: "To-Do List" },
     { href: "/clock-suite", label: "Clock Suite" },
+    { href: "/Utilities", label: "Utilities" },
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-purple-700 text-white shadow-md">
+    <header className="sticky top-0 z-100 bg-purple-700 text-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-full" />
+        <Link href="/" className="flex justify-center items-center gap-2">
+          <img src="/logo.png" alt="Logo" className="w-15 h-15 rounded-full" />
           <span className="text-xl font-bold">MyPlanner</span>
         </Link>
 
         {/* Desktop Nav Links */}
-        <nav className="hidden md:flex gap-6">
+        <nav className="hidden md:flex gap-2">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (

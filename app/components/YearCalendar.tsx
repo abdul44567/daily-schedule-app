@@ -1,6 +1,5 @@
 "use client";
 import { useRouter } from 'next/navigation';
-import { useState } from "react";
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -29,10 +28,10 @@ export default function YearCalendar() {
       days.push(
         <div
           key={d + "-day"}
-          className={`h-6 w-6 text-center flex items-center justify-center rounded-full transition ${
+          className={`h-10 w-10 text-center flex items-center justify-center rounded-full transition ${
             isToday
-              ? "bg-purple-600 text-white font-bold shadow-md ring-2 ring-purple-400 text-xs"
-              : "hover:bg-purple-100 text-gray-800 text-sm"
+              ? "bg-purple-600 text-white font-bold shadow-md ring-2 ring-purple-400 text-base"
+              : "hover:bg-purple-100 text-gray-800 text-base"
           }`}
         >
           {d}
@@ -53,18 +52,18 @@ export default function YearCalendar() {
         ← Back to Home
       </button>
 
-      {/* Calendar Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[80vh] overflow-auto">
+      {/* Full Visible Calendar Grid (No Scroll) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {months.map((month, idx) => (
-          <div key={idx} className="border rounded p-2 shadow-sm bg-white">
-            <h3 className="text-center font-semibold text-purple-700">
+          <div key={idx} className="border rounded p-4 shadow-md bg-white">
+            <h3 className="text-center font-semibold text-purple-700 text-lg mb-2">
               {month} {year}
             </h3>
-            <div className="grid grid-cols-7 gap-1 text-sm text-gray-700 mt-2">
+            <div className="grid grid-cols-7 gap-2 text-gray-700">
               {["S", "M", "T", "W", "T", "F", "S"].map((d, idx) => (
                 <div
                   key={`${d}-${idx}`}
-                  className="text-center font-bold text-xs mb-2"
+                  className="text-center font-bold text-sm"
                 >
                   {d}
                 </div>
