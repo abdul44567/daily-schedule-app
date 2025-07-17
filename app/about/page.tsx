@@ -30,10 +30,10 @@ export default function About() {
 
         {/* Info Section */}
         <div className="w-full max-w-xl">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-700">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-700 text-center lg:text-left">
             Hi, I'm <span className="text-purple-800">Abdul Rehman</span>
           </h2>
-          <p className="text-gray-700 mb-6">
+          <p className="text-gray-700 mb-6 text-center lg:text-left">
             I enjoy solving real-world problems with code. Learning new tools
             and improving my development skills every day is something I truly
             love. I'm always ready to take on new challenges and build
@@ -42,11 +42,11 @@ export default function About() {
 
           <div className="space-y-3 text-sm sm:text-base text-gray-800">
             {[
-              ["Name", "Abdul Rehman"],
-              ["S/O", "Muhammad Mehdi"],
-              ["Address", "Gujrat, Pakistan"],
+              ["Name :", "Abdul Rehman"],
+              ["S/O :", "Muhammad Mehdi"],
+              ["Address :", "Gujrat, Pakistan"],
               [
-                "Phone Number",
+                "Phone No :",
                 <a
                   href="https://wa.me/923403148438"
                   className="hover:underline"
@@ -54,10 +54,10 @@ export default function About() {
                   0340 3148438
                 </a>,
               ],
-              ["Email", "abdulofficial187@gmail.com"],
+              ["Email :", "abdulofficial187@gmail.com"],
             ].map(([label, value], idx) => (
               <div key={idx} className="flex gap-3 sm:gap-6 flex-wrap">
-                <span className="font-bold text-purple-700 w-32">{label}</span>
+                <span className="font-bold text-purple-800 sm:w-32 w-25">{label}</span>
                 <span className="break-all">: {value}</span>
               </div>
             ))}

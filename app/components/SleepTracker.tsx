@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Button from "./Button";
 
 const SleepTracker = () => {
   const [sleepTime, setSleepTime] = useState("");
@@ -31,12 +32,14 @@ const SleepTracker = () => {
 
   return (
     <div className="mt-10 p-6 rounded-lg bg-purple-50 shadow">
-      <h2 className="text-2xl font-bold text-purple-700 mb-4">😴 Sleep Tracker</h2>
+      <h2 className="text-2xl font-bold text-purple-700 mb-4">
+        😴 Sleep Tracker
+      </h2>
 
       <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
         <div className="flex-1">
           <label className="block text-purple-600 font-medium mb-1">
-            Sone ka time:
+            Sleeping time:
           </label>
           <input
             type="time"
@@ -48,7 +51,7 @@ const SleepTracker = () => {
 
         <div className="flex-1">
           <label className="block text-purple-600 font-medium mb-1">
-            Uthne ka time:
+            Wake Up time:
           </label>
           <input
             type="time"
@@ -59,16 +62,17 @@ const SleepTracker = () => {
         </div>
       </div>
 
-      <button
+      <Button
         onClick={calculateSleep}
-        className="mt-4 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition"
+        className="mt-4 bg-purple-800 text-white px-4 py-2 rounded hover:bg-purple-700 transition cursor-pointer"
       >
         Calculate Sleep
-      </button>
+      </Button>
 
       {duration && (
         <div className="mt-4 text-lg font-semibold text-green-600">
-          😌 Tum ne total: <span className="font-bold">{duration}</span> soya!
+          😌 You slept for a total of:{" "}
+          <span className="font-bold">{duration}</span>
         </div>
       )}
     </div>

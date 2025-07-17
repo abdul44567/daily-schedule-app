@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import PageTitle from "../components/pageTitle";
+import Button from "../components/Button";
 
 const ClockSuite = () => {
   const [activeTab, setActiveTab] = useState<"clock" | "stopwatch" | "timer">(
@@ -15,17 +16,17 @@ const ClockSuite = () => {
 
         <div className="flex justify-center flex-wrap gap-4 mb-8">
           {["clock", "stopwatch", "timer"].map((tab) => (
-            <button
+            <Button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
               className={`px-6 py-2 text-lg rounded-full font-semibold transition duration-300 ${
                 activeTab === tab
-                  ? "bg-purple-700 text-white shadow-md cursor-pointer"
-                  : "bg-white border border-purple-400 text-purple-700 hover:bg-purple-100 cursor-pointer"
+                  ? "bg-purple-700 text-white shadow-md"
+                  : "bg-white border border-purple-400 text-purple-700 hover:bg-purple-100"
               }`}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -87,30 +88,30 @@ const Stopwatch = () => {
         {minutes}:{seconds}:{ms}
       </div>
       <div className="flex justify-center gap-4">
-        <button
+        <Button
           onClick={() => setRunning(true)}
           disabled={running}
-          className={`px-4 py-2 rounded-full font-semibold shadow-md text-white cursor-pointer ${
+          className={`px-4 py-2 rounded-full font-semibold shadow-md text-white ${
             running ? "bg-gray-400 cursor-not-allowed" : "bg-green-500"
           }`}
         >
           Start
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => setRunning(false)}
           disabled={!running}
-          className={`px-4 py-2 rounded-full font-semibold shadow-md text-white cursor-pointer ${
+          className={`px-4 py-2 rounded-full font-semibold shadow-md text-white ${
             !running ? "bg-gray-400 cursor-not-allowed" : "bg-yellow-500"
           }`}
         >
           Pause
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={reset}
-          className="bg-red-500 text-white px-4 py-2 rounded-full font-semibold shadow-md cursor-pointer"
+          className="bg-red-500 text-white px-4 py-2 rounded-full font-semibold shadow-md"
         >
           Reset
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -181,7 +182,6 @@ const Timer = () => {
   };
 
   const handleStart = () => {
-    // Only show alert if timer NOT set (hasSetTimer = false)
     if (!hasSetTimer && minutes === 0 && seconds === 0) {
       showTimedAlert("Please set the timer first!");
       return;
@@ -191,18 +191,16 @@ const Timer = () => {
 
   return (
     <div className="text-center relative">
-      {/* Custom Alert */}
       {showAlert && (
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 bg-purple-100 border border-purple-400 text-purple-700 px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3 w-[300px] sm:w-auto font-semibold z-50">
           <span className="text-2xl">⏰</span>
           <span>{alertMessage}</span>
-          <button
+          <Button
             onClick={() => setShowAlert(false)}
-            aria-label="Close alert"
-            className="ml-auto text-purple-700 hover:text-purple-900 font-bold"
+            className="ml-auto text-2xl text-purple-700 hover:text-purple-900 font-bold"
           >
             ×
-          </button>
+          </Button>
         </div>
       )}
 
@@ -210,12 +208,10 @@ const Timer = () => {
         {minutes.toString().padStart(2, "0")}:
         {seconds.toString().padStart(2, "0")}
       </div>
+
       <div className="flex justify-center gap-4 mb-4">
         <div className="flex flex-col items-center">
-          <label
-            htmlFor="minutesInput"
-            className="mb-1 font-semibold text-purple-700"
-          >
+          <label htmlFor="minutesInput" className="mb-1 font-semibold text-purple-700">
             Min
           </label>
           <input
@@ -231,10 +227,7 @@ const Timer = () => {
           />
         </div>
         <div className="flex flex-col items-center">
-          <label
-            htmlFor="secondsInput"
-            className="mb-1 font-semibold text-purple-700"
-          >
+          <label htmlFor="secondsInput" className="mb-1 font-semibold text-purple-700">
             Sec
           </label>
           <input
@@ -250,31 +243,32 @@ const Timer = () => {
           />
         </div>
       </div>
+
       <div className="flex justify-center gap-4">
-        <button
+        <Button
           onClick={handleStart}
           disabled={running}
-          className={`px-4 py-2 rounded-full font-semibold shadow-md text-white cursor-pointer ${
+          className={`px-4 py-2 rounded-full font-semibold shadow-md text-white ${
             running ? "bg-gray-400 cursor-not-allowed" : "bg-green-500"
           }`}
         >
           Start
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => setRunning(false)}
           disabled={!running}
-          className={`px-4 py-2 rounded-full font-semibold shadow-md text-white cursor-pointer ${
+          className={`px-4 py-2 rounded-full font-semibold shadow-md text-white ${
             !running ? "bg-gray-400 cursor-not-allowed" : "bg-yellow-500"
           }`}
         >
           Pause
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={reset}
-          className="bg-red-500 text-white px-4 py-2 rounded-full font-semibold shadow-md cursor-pointer"
+          className="bg-red-500 text-white px-4 py-2 rounded-full font-semibold shadow-md"
         >
           Reset
-        </button>
+        </Button>
       </div>
     </div>
   );

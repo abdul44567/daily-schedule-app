@@ -1,9 +1,20 @@
 "use client";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
+import Button from "./Button";
 
 const months = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 export default function YearCalendar() {
@@ -44,13 +55,13 @@ export default function YearCalendar() {
 
   return (
     <div className="p-4">
-      {/* 🔙 Back Button */}
-      <button
+      {/* Back Button */}
+      <Button
         onClick={() => router.push("/")}
-        className="mb-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition cursor-pointer"
+        className="mb-4 bg-purple-800 text-white px-4 py-2 rounded hover:bg-purple-700 transition cursor-pointer"
       >
         ← Back to Home
-      </button>
+      </Button>
 
       {/* Full Visible Calendar Grid (No Scroll) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

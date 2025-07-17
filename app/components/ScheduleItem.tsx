@@ -15,14 +15,18 @@ const defaultSchedule: ScheduleEntry[] = [
   { time: "4:30 AM", task: "Fajr Namaz & Qur'an Recitation", emoji: "🕌" },
   { time: "6:00 AM", task: "Morning Walk & Refresh", emoji: "🌅" },
   { time: "7:00 AM", task: "Breakfast & Light Reading", emoji: "☕" },
-  { time: "9:00 AM", task: "Web Development (Next.js + TypeScript)", emoji: "💻" },
+  {
+    time: "9:00 AM",
+    task: "Web Development (Next.js + TypeScript)",
+    emoji: "💻",
+  },
   { time: "12:00 PM", task: "Lunch & Short Break", emoji: "🍽️" },
   { time: "1:00 PM", task: "Zohar Prayer & Rest", emoji: "🕌" },
   { time: "3:00 PM", task: "Revising Code / Practice", emoji: "📚" },
   { time: "5:00 PM", task: "Asr Prayer & Walk", emoji: "🕌" },
   { time: "6:00 PM", task: "Mini Project / Creative Coding", emoji: "🛠️" },
   { time: "8:00 PM", task: "Dinner & Family Time", emoji: "🍛" },
-  { time: "9:45 PM", task: "Isha Prayer & Wind Down", emoji: "🕋" },
+  { time: "9:21 PM", task: "Isha Prayer & Wind Down", emoji: "🕋" },
   { time: "10:00 PM", task: "Sleep & Recharge", emoji: "😴" },
 ];
 
@@ -55,7 +59,11 @@ const to24 = (t: string): string => {
 
 export default function ScheduleItem() {
   const [schedule, setSchedule] = useState<ScheduleEntry[]>([]);
-  const [newEntry, setNewEntry] = useState<ScheduleEntry>({ time: "", task: "", emoji: "" });
+  const [newEntry, setNewEntry] = useState<ScheduleEntry>({
+    time: "",
+    task: "",
+    emoji: "",
+  });
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [editingEntry, setEditingEntry] = useState<ScheduleEntry | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +78,9 @@ export default function ScheduleItem() {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          setSchedule(parsed.sort((a, b) => timeToNumber(a.time) - timeToNumber(b.time)));
+          setSchedule(
+            parsed.sort((a, b) => timeToNumber(a.time) - timeToNumber(b.time))
+          );
           return;
         }
       } catch (e) {
@@ -78,6 +88,26 @@ export default function ScheduleItem() {
       }
     }
     setSchedule(defaultSchedule);
+  }, []);
+
+  // Listen to storage event for cross-tab sync
+  useEffect(() => {
+    const onStorageChange = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY && e.newValue) {
+        try {
+          const newSchedule = JSON.parse(e.newValue);
+          if (Array.isArray(newSchedule)) {
+            setSchedule(
+              newSchedule.sort((a, b) => timeToNumber(a.time) - timeToNumber(b.time))
+            );
+          }
+        } catch {
+          // ignore error
+        }
+      }
+    };
+    window.addEventListener("storage", onStorageChange);
+    return () => window.removeEventListener("storage", onStorageChange);
   }, []);
 
   // Save changes
@@ -101,7 +131,7 @@ export default function ScheduleItem() {
       const now = new Date();
       const nowMin = now.getHours() * 60 + now.getMinutes();
 
-      schedule.forEach(item => {
+      schedule.forEach((item) => {
         const taskMin = timeToNumber(item.time);
         if (taskMin - nowMin === reminderMin) {
           alertRef.current?.play().catch(() => {});
@@ -120,7 +150,10 @@ export default function ScheduleItem() {
     return () => clearInterval(interval);
   }, [schedule, reminderMin]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof ScheduleEntry) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: keyof ScheduleEntry
+  ) => {
     const v = e.target.value;
     editingEntry && editingIdx !== null
       ? setEditingEntry({ ...editingEntry, [field]: v })
@@ -131,12 +164,13 @@ export default function ScheduleItem() {
   const handleAdd = () => {
     const { time, task, emoji } = newEntry;
     if (!time || !task || !emoji) return setError("All fields are required.");
-    if (schedule.some(s => s.time.toLowerCase() === time.toLowerCase()))
+    if (schedule.some((s) => s.time.toLowerCase() === time.toLowerCase()))
       return setError("Time already exists");
 
-    const updated = [...schedule, { time: time.trim(), task: task.trim(), emoji: emoji.trim() }].sort(
-      (a, b) => timeToNumber(a.time) - timeToNumber(b.time)
-    );
+    const updated = [
+      ...schedule,
+      { time: time.trim(), task: task.trim(), emoji: emoji.trim() },
+    ].sort((a, b) => timeToNumber(a.time) - timeToNumber(b.time));
     setSchedule(updated);
     setNewEntry({ time: "", task: "", emoji: "" });
   };
@@ -147,7 +181,9 @@ export default function ScheduleItem() {
     if (!time || !task || !emoji) return setError("All fields required.");
     const updated = [...schedule];
     updated[editingIdx!] = { time, task, emoji };
-    setSchedule(updated.sort((a, b) => timeToNumber(a.time) - timeToNumber(b.time)));
+    setSchedule(
+      updated.sort((a, b) => timeToNumber(a.time) - timeToNumber(b.time))
+    );
     setEditingIdx(null);
     setEditingEntry(null);
   };
@@ -163,48 +199,71 @@ export default function ScheduleItem() {
     <div className="space-y-4">
       {/* Add section */}
       <div className="p-4 border rounded bg-white dark:bg-gray-800 sticky top-21 z-10 space-y-2">
+        {/* Header */}
         <div className="flex justify-between items-center">
           <h3 className="font-semibold">Add New Schedule Item</h3>
-          <button onClick={resetToDefault} className="text-sm text-red-500 hover:text-red-700">
+          <button
+            onClick={resetToDefault}
+            className="text-sm text-red-500 hover:text-red-700"
+          >
             Reset to Default
           </button>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <button
-              onClick={() => setShowPicker(!showPicker)}
-              className="w-10 h-8 border rounded flex items-center justify-center text-xl"
-            >
-              {newEntry.emoji || <FiSmile className="text-gray-400" />}
-            </button>
-            {showPicker && (
-              <div className="absolute z-50 top-9">
-                <EmojiPicker
-                  onEmojiClick={(e: EmojiClickData) => {
-                    setNewEntry({ ...newEntry, emoji: e.emoji });
-                    setShowPicker(false);
-                  }}
-                />
-              </div>
-            )}
+
+        {/* Inputs Section */}
+        <div className="flex flex-col md:flex-row md:items-center md:gap-2 gap-3 mb-4">
+          {/* Emoji + Time */}
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <button
+                onClick={() => setShowPicker(!showPicker)}
+                className="w-10 h-8 border rounded flex items-center justify-center text-xl"
+              >
+                {newEntry.emoji || <FiSmile className="text-gray-400" />}
+              </button>
+              {showPicker && (
+                <div className="absolute z-50 top-9">
+                  <EmojiPicker
+                    onEmojiClick={(e: EmojiClickData) => {
+                      setNewEntry({ ...newEntry, emoji: e.emoji });
+                      setShowPicker(false);
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+
+            <input
+              type="time"
+              className="w-32 border p-1 pl-2 rounded"
+              value={to24(newEntry.time)}
+              onChange={(e) =>
+                setNewEntry({ ...newEntry, time: to12(e.target.value) })
+              }
+            />
           </div>
-          <input
-            type="time"
-            className="w-28 border p-1 rounded"
-            value={to24(newEntry.time)}
-            onChange={(e) => setNewEntry({ ...newEntry, time: to12(e.target.value) })}
-          />
+
+          {/* Task Input */}
           <input
             type="text"
-            className="flex-1 border p-1 rounded"
+            className="flex-1 border p-1 pl-2 rounded"
             placeholder="Task"
             value={newEntry.task}
             onChange={(e) => handleInputChange(e, "task")}
           />
-          <button onClick={handleAdd} className="p-2 bg-blue-500 text-white rounded-full">
+
+          {/* Add Button */}
+          <button
+            onClick={handleAdd}
+            className="p-2 bg-blue-500 text-white rounded-full
+                 md:self-auto
+                 w-full md:w-auto flex justify-center items-center"
+          >
             <FiPlus />
           </button>
         </div>
+
+        {/* Reminder Dropdown */}
         <div className="flex items-center gap-2 text-sm">
           <span>Remind me:</span>
           <select
@@ -219,12 +278,17 @@ export default function ScheduleItem() {
             ))}
           </select>
         </div>
+
+        {/* Error */}
         {error && <p className="text-red-500 text-sm">{error}</p>}
       </div>
 
       {/* Schedule list */}
       {schedule.map((item, idx) => (
-        <div key={idx} className="flex justify-between p-4 bg-white dark:bg-gray-800 rounded shadow">
+        <div
+          key={idx}
+          className="flex justify-between p-4 bg-white dark:bg-gray-800 rounded shadow"
+        >
           {editingIdx === idx ? (
             <div className="flex gap-2 w-full items-center">
               <input
@@ -245,7 +309,13 @@ export default function ScheduleItem() {
               <button onClick={saveEdit} className="text-green-600">
                 <FiSave />
               </button>
-              <button onClick={() => { setEditingIdx(null); setEditingEntry(null); }} className="text-gray-500">
+              <button
+                onClick={() => {
+                  setEditingIdx(null);
+                  setEditingEntry(null);
+                }}
+                className="text-gray-500"
+              >
                 <FiX />
               </button>
             </div>
@@ -259,10 +329,21 @@ export default function ScheduleItem() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => { setEditingIdx(idx); setEditingEntry(item); }} className="text-blue-500">
+                <button
+                  onClick={() => {
+                    setEditingIdx(idx);
+                    setEditingEntry(item);
+                  }}
+                  className="text-blue-500"
+                >
                   <FiEdit />
                 </button>
-                <button onClick={() => setSchedule(schedule.filter((_, i) => i !== idx))} className="text-red-500">
+                <button
+                  onClick={() =>
+                    setSchedule(schedule.filter((_, i) => i !== idx))
+                  }
+                  className="text-red-500"
+                >
                   <FiTrash2 />
                 </button>
               </div>
