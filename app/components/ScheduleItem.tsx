@@ -98,7 +98,9 @@ export default function ScheduleItem() {
           const newSchedule = JSON.parse(e.newValue);
           if (Array.isArray(newSchedule)) {
             setSchedule(
-              newSchedule.sort((a, b) => timeToNumber(a.time) - timeToNumber(b.time))
+              newSchedule.sort(
+                (a, b) => timeToNumber(a.time) - timeToNumber(b.time)
+              )
             );
           }
         } catch {
@@ -204,7 +206,7 @@ export default function ScheduleItem() {
           <h3 className="font-semibold">Add New Schedule Item</h3>
           <button
             onClick={resetToDefault}
-            className="text-sm text-red-500 hover:text-red-700"
+            className="text-sm text-red-500 hover:text-red-700 cursor-pointer"
           >
             Reset to Default
           </button>
@@ -217,7 +219,7 @@ export default function ScheduleItem() {
             <div className="relative">
               <button
                 onClick={() => setShowPicker(!showPicker)}
-                className="w-10 h-8 border rounded flex items-center justify-center text-xl"
+                className="w-10 h-8 border rounded flex items-center justify-center text-xl cursor-pointer"
               >
                 {newEntry.emoji || <FiSmile className="text-gray-400" />}
               </button>
@@ -235,7 +237,7 @@ export default function ScheduleItem() {
 
             <input
               type="time"
-              className="w-32 border p-1 pl-2 rounded"
+              className="w-32 border p-1 pl-2 rounded cursor-pointer"
               value={to24(newEntry.time)}
               onChange={(e) =>
                 setNewEntry({ ...newEntry, time: to12(e.target.value) })
@@ -257,7 +259,7 @@ export default function ScheduleItem() {
             onClick={handleAdd}
             className="p-2 bg-blue-500 text-white rounded-full
                  md:self-auto
-                 w-full md:w-auto flex justify-center items-center"
+                 w-full md:w-auto flex justify-center items-center cursor-pointer"
           >
             <FiPlus />
           </button>
@@ -269,7 +271,7 @@ export default function ScheduleItem() {
           <select
             value={reminderMin}
             onChange={(e) => setReminderMin(parseInt(e.target.value))}
-            className="border p-[2px] rounded dark:bg-gray-700 dark:text-white"
+            className="border p-[2px] rounded dark:bg-gray-700 dark:text-white cursor-pointer"
           >
             {[5, 10, 15].map((m) => (
               <option key={m} value={m}>
@@ -306,7 +308,7 @@ export default function ScheduleItem() {
                 value={editingEntry?.task || ""}
                 onChange={(e) => handleInputChange(e, "task")}
               />
-              <button onClick={saveEdit} className="text-green-600">
+              <button onClick={saveEdit} className="text-green-600 hover:bg-green-600/20 rounded-full w-8 h-8 flex items-center justify-center transition cursor-pointer">
                 <FiSave />
               </button>
               <button
@@ -314,7 +316,7 @@ export default function ScheduleItem() {
                   setEditingIdx(null);
                   setEditingEntry(null);
                 }}
-                className="text-gray-500"
+                className="text-red-500 hover:bg-red-500/30 rounded-full w-8 h-8 flex items-center justify-center transition cursor-pointer"
               >
                 <FiX />
               </button>
@@ -328,21 +330,22 @@ export default function ScheduleItem() {
                   <p>{item.task}</p>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <button
                   onClick={() => {
                     setEditingIdx(idx);
                     setEditingEntry(item);
                   }}
-                  className="text-blue-500"
+                  className="text-blue-500 hover:bg-blue-700/30 rounded-full w-8 h-8 flex items-center justify-center transition cursor-pointer"
                 >
                   <FiEdit />
                 </button>
+
                 <button
                   onClick={() =>
                     setSchedule(schedule.filter((_, i) => i !== idx))
                   }
-                  className="text-red-500"
+                  className="text-red-500 hover:bg-red-500/30 rounded-full w-8 h-8 flex items-center justify-center transition cursor-pointer"
                 >
                   <FiTrash2 />
                 </button>

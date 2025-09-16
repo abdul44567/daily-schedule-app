@@ -25,6 +25,13 @@ export default function About() {
             src="/profile.jpg"
             alt="Abdul Rehman"
             className="w-52 h-[320px] sm:w-64 sm:h-[360px] md:w-72 md:h-[380px] object-cover rounded-md"
+            // style={{display: "none"}}
+          />
+          <img
+            src="/profile-2.jpeg"
+            alt="Abdul Rehman"
+            className="w-52 h-[320px] sm:w-64 sm:h-[360px] md:w-72 md:h-[380px] object-cover rounded-md"
+            style={{display: "none"}}
           />
         </div>
 
@@ -49,6 +56,7 @@ export default function About() {
                 "Phone No :",
                 <a
                   href="https://wa.me/923403148438"
+                  target="_blank"
                   className="hover:underline"
                 >
                   0340 3148438

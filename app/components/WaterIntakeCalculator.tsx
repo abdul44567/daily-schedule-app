@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "./Button";
 import { Trash2 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
@@ -12,8 +12,32 @@ export default function WaterIntakeCalculator() {
     { weight: number; activity: string; result: number }[]
   >([]);
 
+  // ✅ Load history from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("water_history");
+    if (saved) {
+      try {
+        setHistory(JSON.parse(saved));
+      } catch {
+        console.error("Invalid water_history in localStorage");
+      }
+    }
+  }, []);
+
+  // ✅ Save history to localStorage whenever it changes
+  useEffect(() => {
+    if (history.length > 0) {
+      localStorage.setItem("water_history", JSON.stringify(history));
+    } else {
+      localStorage.removeItem("water_history");
+    }
+  }, [history]);
+
   const calculate = () => {
-    if (weight === "" || weight <= 0) return;
+    if (weight === "" || weight <= 0) {
+      toast("⚠️ Please enter a valid weight!", { position: "top-right" });
+      return;
+    }
 
     let waterMl = Number(weight) * 35;
     if (activity === "moderate") waterMl += 350;
@@ -24,7 +48,7 @@ export default function WaterIntakeCalculator() {
 
     setHistory((prev) => [
       { weight: Number(weight), activity, result: waterLiters },
-      ...prev.slice(0, 4),
+      ...prev.slice(0, 4), // max 5 records
     ]);
 
     toast.success("Saved to history", { position: "top-right" });
@@ -39,6 +63,11 @@ export default function WaterIntakeCalculator() {
   const deleteHistoryItem = (index: number) => {
     setHistory((prev) => prev.filter((_, i) => i !== index));
     toast("🗑️ Item deleted", { position: "top-right" });
+  };
+
+  const clearAllHistory = () => {
+    setHistory([]);
+    toast.error("All history cleared!", { position: "top-right" });
   };
 
   const handleHistoryClick = (item: {
@@ -74,6 +103,9 @@ export default function WaterIntakeCalculator() {
             onChange={(e) =>
               setWeight(e.target.value === "" ? "" : Number(e.target.value))
             }
+            onKeyDown={(e) => {
+              if (e.key === "Enter") calculate(); // ✅ Enter key se calculate
+            }}
             className="w-full border border-purple-400 p-2 rounded text-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-500/40"
             placeholder="Enter weight in kg"
           />
@@ -121,7 +153,16 @@ export default function WaterIntakeCalculator() {
         {/* History */}
         {history.length > 0 && (
           <div className="mt-4 space-y-2">
-            <h3 className="text-sm font-semibold text-purple-700">History</h3>
+            <div className="flex justify-between items-center">
+              <h3 className="text-sm font-semibold text-purple-700">History</h3>
+              <button
+                onClick={clearAllHistory}
+                className="text-xs font-semibold bg-purple-700 hover:bg-purple-800 text-white px-2 py-1 rounded transition"
+              >
+                Clear All 
+              </button>
+            </div>
+
             {history.map((h, i) => (
               <div
                 key={i}

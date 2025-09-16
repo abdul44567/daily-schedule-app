@@ -13,9 +13,9 @@ const sentences = [
 
 export default function SpeedTypingTest() {
   const [text, setText] = useState("");
-  const [targetText, setTargetText] = useState("");
-  const [customTime, setCustomTime] = useState(60);
-  const [timeLeft, setTimeLeft] = useState(60);
+  const [targetText, setTargetText] = useState("Practice makes perfect."); // default sentence
+  const [customTime, setCustomTime] = useState(10);
+  const [timeLeft, setTimeLeft] = useState(10); // start with default 10
   const [started, setStarted] = useState(false);
   const [finished, setFinished] = useState(false);
   const [accuracy, setAccuracy] = useState(100);
@@ -23,11 +23,6 @@ export default function SpeedTypingTest() {
   const [hasShownToast, setHasShownToast] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
-
-  useEffect(() => {
-    pickNewSentence();
-    inputRef.current?.focus();
-  }, []);
 
   useEffect(() => {
     if (started && timeLeft > 0 && !intervalRef.current) {
@@ -75,22 +70,30 @@ export default function SpeedTypingTest() {
     setText(e.target.value);
   };
 
+  // ✅ Restart function reset timer to default (customTime)
   const handleRestart = () => {
     setText("");
-    setTimeLeft(customTime);
+    setTimeLeft(customTime); // reset timer to customTime
     setStarted(false);
     setFinished(false);
     setAccuracy(100);
     setWpm(0);
     setHasShownToast(false);
-    pickNewSentence();
+
+    // stop any running interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
     inputRef.current?.focus();
+    toast("🔄️ Test restarted!");
   };
 
   const pickNewSentence = () => {
     const random = sentences[Math.floor(Math.random() * sentences.length)];
     setTargetText(random);
-    toast("New sentence loaded! ✨");
+    toast("🌟 New sentence loaded!");
   };
 
   const renderTargetText = () => {
@@ -115,11 +118,11 @@ export default function SpeedTypingTest() {
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-xl border border-purple-200">
-      {/* Toaster should be in root layout only */}
-
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-700 to-purple-600 text-white text-center p-5 rounded-xl mb-6">
-        <h1 className="text-2xl font-extrabold tracking-wide">⌨️ Speed Typing Test</h1>
+        <h1 className="text-2xl font-extrabold tracking-wide">
+          ⌨️ Speed Typing Test
+        </h1>
         <p className="text-xs text-purple-200">Focus • Type • Improve</p>
       </div>
 
@@ -149,7 +152,8 @@ export default function SpeedTypingTest() {
         {/* Result */}
         {finished && (
           <div className="bg-green-100 text-green-800 p-4 rounded text-center font-semibold">
-            ⏱ Test Completed! <br /> You typed at {wpm} WPM with {accuracy}% accuracy.
+            ⏱ Test Completed! <br /> You typed at {wpm} WPM with {accuracy}%
+            accuracy.
           </div>
         )}
 
@@ -162,22 +166,24 @@ export default function SpeedTypingTest() {
             <div className="flex items-center justify-center gap-3">
               <input
                 type="number"
-                min={10}
-                max={600}
+                min={1}
+                max={60}
                 disabled={started}
                 value={customTime}
                 onChange={(e) => {
                   const val = parseInt(e.target.value);
-                  if (!isNaN(val) && val >= 10 && val <= 600) {
+                  if (!isNaN(val) && val >= 1 && val <= 60) {
                     setCustomTime(val);
                     if (!started) setTimeLeft(val);
                   } else {
-                    toast.error("Please enter time between 10–600 seconds");
+                    toast.error("Please enter time between 1–60 seconds");
                   }
                 }}
-                className="w-24 px-3 py-2 text-center rounded-xl bg-purple-50 text-purple-800 border-none shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400/50 font-semibold"
+                className="w-24 px-3 py-2 text-center rounded-xl bg-purple-50 text-purple-800 border-none shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400/50 font-semibold cursor-pointer"
               />
-              <span className="text-purple-700 font-medium text-sm">seconds</span>
+              <span className="text-purple-700 font-medium text-sm">
+                seconds
+              </span>
             </div>
           </div>
         </div>
@@ -187,7 +193,7 @@ export default function SpeedTypingTest() {
           <Button
             onClick={pickNewSentence}
             title="Get a new random sentence"
-            className="flex-1 bg-yellow-400 text-purple-900 font-semibold px-4 py-2 rounded hover:bg-yellow-500 active:scale-95 transition duration-300 shadow-md"
+            className="flex-1 bg-yellow-500 text-yellow-900 font-semibold py-2 rounded hover:bg-yellow-600/80 active:scale-95 transition duration-300 shadow-md"
           >
             New Sentence
           </Button>
@@ -196,7 +202,7 @@ export default function SpeedTypingTest() {
             onClick={handleRestart}
             className="flex-1 bg-purple-700 text-white font-semibold px-4 py-2 rounded hover:bg-purple-800 active:scale-95 transition duration-300"
           >
-            Restart
+            Restart 🔄️
           </Button>
         </div>
       </div>

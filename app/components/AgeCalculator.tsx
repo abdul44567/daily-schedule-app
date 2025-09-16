@@ -1,15 +1,40 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Trash2, Copy } from "lucide-react";
 import Button from "../components/Button";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function AgeCalculator() {
   const [dob, setDob] = useState("");
   const [result, setResult] = useState("");
   const [history, setHistory] = useState<any[]>([]);
 
+  // 🔹 Load history from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("age_history");
+    if (saved) {
+      try {
+        setHistory(JSON.parse(saved));
+      } catch {
+        console.error("Invalid age_history in localStorage");
+      }
+    }
+  }, []);
+
+  // 🔹 Save history to localStorage whenever it changes
+  useEffect(() => {
+    if (history.length > 0) {
+      localStorage.setItem("age_history", JSON.stringify(history));
+    } else {
+      localStorage.removeItem("age_history");
+    }
+  }, [history]);
+
   const calculateAge = () => {
-    if (!dob) return;
+    if (!dob) {
+      toast("⚠️ Please select your date of birth!");
+      return;
+    }
 
     const birthDate = new Date(dob);
     const now = new Date();
@@ -38,18 +63,33 @@ export default function AgeCalculator() {
       ageStr,
     };
     setHistory((prev) => [newEntry, ...prev.slice(0, 4)]);
+    toast.success("Age calculated & saved!");
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
+    toast.success("Age copied to clipboard!");
   };
 
   const handleDelete = (index: number) => {
     setHistory((prev) => prev.filter((_, i) => i !== index));
+    toast("🗑️ Entry deleted");
+  };
+
+  const clearInput = () => {
+    setDob("");
+    setResult("");
+  };
+
+  const clearHistory = () => {
+    setHistory([]);
+    toast.error("All history cleared!");
   };
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-xl border border-purple-200 max-w-md mx-auto">
+      <Toaster position="top-right" reverseOrder={false} />
+
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-700 to-purple-600 text-white text-center p-5 rounded-xl mb-6">
         <h1 className="text-2xl font-extrabold tracking-wide">
@@ -66,15 +106,25 @@ export default function AgeCalculator() {
         type="date"
         value={dob}
         onChange={(e) => setDob(e.target.value)}
-        className="w-full rounded border border-purple-500 p-2 text-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-600/40 mb-4 cursor-pointer"
+        onKeyDown={(e) => e.key === "Enter" && calculateAge()}
+        className="w-full rounded border border-purple-500 p-2 text-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-600/40 mb-5 cursor-pointer"
       />
 
-      <Button
-        onClick={calculateAge}
-        className="w-full bg-purple-700 text-white font-semibold py-2 rounded hover:bg-purple-800 active:scale-95 transition duration-300 mb-4"
-      >
-        Calculate Age
-      </Button>
+      {/* Buttons Row */}
+      <div className="flex items-center gap-2 mb-4">
+        <Button
+          onClick={calculateAge}
+          className="flex-1 bg-purple-700 text-white font-semibold py-2 rounded hover:bg-purple-800 active:scale-95 transition duration-300"
+        >
+          Calculate Age
+        </Button>
+        <Button
+          onClick={clearInput}
+          className="bg-red-500 text-white font-semibold px-3 py-2 rounded hover:bg-red-600 active:scale-95 transition duration-300"
+        >
+          🗑️ Clear
+        </Button>
+      </div>
 
       {/* Result */}
       {result && (
@@ -95,9 +145,18 @@ export default function AgeCalculator() {
       {/* History */}
       {history.length > 0 && (
         <div className="mt-6 space-y-2">
-          <h3 className="text-sm font-semibold text-purple-700">
-            Recent Age History
-          </h3>
+          <div className="flex justify-between items-center">
+            <h3 className="text-sm font-semibold text-purple-700">
+              Recent Age History
+            </h3>
+            <Button
+              onClick={clearHistory}
+              className="bg-purple-700 text-white text-xs font-semibold px-2 py-1 rounded hover:bg-purple-800 active:scale-95 transition duration-300"
+            >
+              Clear History
+            </Button>
+          </div>
+
           {history.map((h, i) => (
             <div
               key={i}

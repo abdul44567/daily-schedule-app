@@ -45,7 +45,7 @@ const SleepTracker = () => {
             type="time"
             value={sleepTime}
             onChange={(e) => setSleepTime(e.target.value)}
-            className="w-full text-black border rounded px-3 py-2"
+            className="w-full text-black border rounded px-3 py-2 cursor-pointer"
           />
         </div>
 
@@ -57,7 +57,7 @@ const SleepTracker = () => {
             type="time"
             value={wakeTime}
             onChange={(e) => setWakeTime(e.target.value)}
-            className="w-full text-black border rounded px-3 py-2"
+            className="w-full text-black border rounded px-3 py-2  cursor-pointer"
           />
         </div>
       </div>

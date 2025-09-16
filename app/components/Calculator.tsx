@@ -103,6 +103,11 @@ export default function Calculator() {
     toast("🗑️ Item deleted", { position: "top-right" });
   };
 
+  const clearHistory = () => {
+    setHistory([]);
+    toast.error("All history cleared", { position: "top-right" });
+  };
+
   return (
     <div
       ref={calculatorRef}
@@ -179,7 +184,7 @@ export default function Calculator() {
         </Button>
         <Button
           onClick={deleteLastChar}
-          className="w-full bg-yellow-500 text-purple-900 font-semibold py-2 rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-600/40 transition duration-300"
+          className="w-full bg-yellow-500 text-yellow-900 font-semibold py-2 rounded hover:bg-yellow-600/80 focus:outline-none focus:ring-2 focus:ring-yellow-600/40 transition duration-300"
         >
           ⌫ Backspace
         </Button>
@@ -188,7 +193,15 @@ export default function Calculator() {
       {/* History */}
       {history.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-purple-700">History</h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-semibold text-purple-700">History</h3>
+            <Button
+              onClick={clearHistory}
+              className="bg-purple-700 text-white px-2 py-1 text-xs font-semibold rounded hover:bg-purple-800 active:scale-95 transition duration-300"
+            >
+              Clear History
+            </Button>
+          </div>
           {history.map((h, i) => (
             <div
               key={i}
@@ -207,7 +220,7 @@ export default function Calculator() {
               </span>
               <Trash2
                 size={24}
-                className="text-purple-700 hover:bg-purple-300 hover:text-purple-300 rounded-full cursor-pointer transition duration-300"
+                className="text-purple-700 hover:bg-purple-300 dark:hover:bg-purple-900 hover:text-purple-300 rounded-full cursor-pointer transition duration-300"
                 onClick={() => deleteHistoryItem(i)}
                 style={{ padding: "4px" }}
               />

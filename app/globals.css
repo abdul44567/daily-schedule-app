@@ -1,15 +1,30 @@
 @import "tailwindcss";
 
+/* Geist Font */
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/geist/Geist-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/geist/Geist-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/geist/Geist-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,9 +37,10 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: "Poppins", sans-serif;
+  font-family: "Geist", "Poppins", sans-serif;
 }
 
+/* Animations */
 @keyframes fadeInOut {
   0% { opacity: 0; transform: translateY(-10px); }
   10% { opacity: 1; transform: translateY(0); }
@@ -36,7 +52,6 @@ body {
   animation: fadeInOut 4s ease-in-out forwards;
 }
 
-/* Optional: Only keep one fadeIn */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-30px); }
   to { opacity: 1; transform: translateY(0); }
@@ -57,4 +72,16 @@ body {
 
 .animate-wave {
   animation: wave 1.8s ease-in-out infinite;
+}
+
+.bottom-bar {
+  width: 0%;
+  height: 3px;
+  margin: 0 auto;
+  animation: bottom-bar 5s linear infinite;
+}
+
+@keyframes bottom-bar {
+  0% { width: 0%; }
+  100% { width: 70%; }
 }

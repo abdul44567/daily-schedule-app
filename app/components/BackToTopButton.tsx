@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { ArrowUp } from 'lucide-react';
-import Button from '../components/Button';   // Adjust the path if needed
+import Button from '../components/Button'; 
 
 export default function BackToTopButton() {
   const [isVisible, setIsVisible] = useState(false);
@@ -24,7 +24,7 @@ export default function BackToTopButton() {
     <Button
       onClick={scrollToTop}
       aria-label="Back to top"
-      className="fixed bottom-6 right-6 p-3 bg-purple-600 text-white rounded-full shadow-lg hover:bg-purple-700 transition"
+      className="fixed bottom-6 right-6 p-3 bg-purple-600 text-white rounded-full shadow-lg hover:bg-purple-700 transition cursor-pointer"
     >
       <ArrowUp size={20} />
     </Button>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Copy, Trash2 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import Button from "../components/Button";
@@ -99,6 +99,27 @@ export default function ConverterPro() {
   const [aux, setAux] = useState<number | "">("");
   const [history, setHistory] = useState<any[]>([]);
 
+  // ✅ Load history
+  useEffect(() => {
+    const saved = localStorage.getItem("converter_history");
+    if (saved) {
+      try {
+        setHistory(JSON.parse(saved));
+      } catch {
+        console.error("Invalid history in localStorage");
+      }
+    }
+  }, []);
+
+  // ✅ Save history
+  useEffect(() => {
+    if (history.length > 0) {
+      localStorage.setItem("converter_history", JSON.stringify(history));
+    } else {
+      localStorage.removeItem("converter_history");
+    }
+  }, [history]);
+
   const selected = categories[category][conversionIndex];
 
   const compute = () => {
@@ -122,7 +143,15 @@ export default function ConverterPro() {
   const isDiscount = category === "discount" && typeof result === "object";
 
   const handleConvert = () => {
-    if (converterInput === "" || (category === "currency" && aux === "")) return;
+    if (
+      converterInput === "" ||
+      (typeof converterInput === "number" && converterInput <= 0) ||
+      (category === "currency" && (aux === "" || aux <= 0))
+    ) {
+      toast("⚠️ Please enter a valid input!", { position: "top-right" });
+      return;
+    }
+
     const record = {
       time: new Date().toLocaleTimeString(),
       category,
@@ -132,19 +161,24 @@ export default function ConverterPro() {
       result,
     };
     setHistory((h) => [record, ...h.slice(0, 4)]);
-    toast.success("Saved to history", { position: "top-left" });
+    toast.success("Saved to history", { position: "top-right" });
   };
 
   const handleDelete = (index: number) => {
     setHistory((prev) => prev.filter((_, i) => i !== index));
-    toast("🗑️ Item deleted", { position: "top-left" });
+    toast("🗑️ Item deleted", { position: "top-right" });
+  };
+
+  const handleClearAll = () => {
+    setHistory([]);
+    toast.error("All history cleared", { position: "top-right" });
   };
 
   const copyToClipboard = (text: string) => navigator.clipboard.writeText(text);
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-xl border border-purple-200">
-      <Toaster position="top-left" />
+      <Toaster position="top-right" />
       <div className="bg-gradient-to-r from-purple-700 to-purple-600 text-white text-center p-5 rounded-xl mb-6">
         <h1 className="text-2xl font-extrabold tracking-wide">
           {categoryIcons[category]} Converter
@@ -189,8 +223,13 @@ export default function ConverterPro() {
         {/* Inputs */}
         {category === "discount" ? (
           <>
-            <Input label="Original Price" value={converterInput} onChange={setConverterInput} />
-            <Input label="Discount %" value={aux} onChange={setAux} />
+            <Input
+              label="Original Price"
+              value={converterInput}
+              onChange={setConverterInput}
+              onEnter={handleConvert}
+            />
+            <Input label="Discount %" value={aux} onChange={setAux} onEnter={handleConvert} />
             {isDiscount && (
               <div className="bg-purple-50 p-4 rounded text-purple-800">
                 <p>
@@ -205,12 +244,13 @@ export default function ConverterPro() {
         ) : (
           <>
             {category === "currency" && (
-              <Input label="Live Rate" value={aux} onChange={setAux} />
+              <Input label="Live Rate" value={aux} onChange={setAux} onEnter={handleConvert} />
             )}
             <Input
               label={`Enter ${selected.from}`}
               value={converterInput}
               onChange={setConverterInput}
+              onEnter={handleConvert}
             />
             {typeof converterInput === "number" && (
               <div className="bg-purple-50 text-center p-4 rounded text-purple-800">
@@ -241,9 +281,17 @@ export default function ConverterPro() {
         {/* History */}
         {history.length > 0 && (
           <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-purple-700">
-              Recent conversions
-            </h3>
+            <div className="flex justify-between items-center">
+              <h3 className="text-sm font-semibold text-purple-700">
+                Recent conversions
+              </h3>
+              <Button
+                onClick={handleClearAll}
+                className="text-xs font-semibold bg-purple-700 text-white px-3 py-1 rounded hover:bg-purple-800"
+              >
+                Clear All
+              </Button>
+            </div>
             {history.map((h, i) => (
               <div
                 key={i}
@@ -284,15 +332,17 @@ export default function ConverterPro() {
   );
 }
 
-// ✅ Input Component
+// ✅ Input Component with Enter Support
 function Input({
   label,
   value,
   onChange,
+  onEnter,
 }: {
   label: string;
   value: number | "";
   onChange: (val: number | "") => void;
+  onEnter?: () => void;
 }) {
   return (
     <label className="block">
@@ -308,6 +358,9 @@ function Input({
             const parsed = Number(v);
             if (!isNaN(parsed)) onChange(parsed);
           }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && onEnter) onEnter();
         }}
       />
     </label>

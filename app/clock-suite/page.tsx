@@ -219,7 +219,7 @@ const Timer = () => {
             type="number"
             min={0}
             max={999}
-            className="border rounded px-4 py-1 w-24 border-purple-500 text-purple-800 text-center text-lg outline-0"
+            className="border rounded px-4 py-1 w-24 border-purple-500 text-purple-800 text-center text-lg outline-0 cursor-pointer"
             value={inputMinutes}
             onChange={(e) => handleInputChange(e, "minutes")}
             placeholder="Min"
@@ -235,7 +235,7 @@ const Timer = () => {
             type="number"
             min={0}
             max={59}
-            className="border rounded px-4 py-1 w-24 border-purple-500 text-purple-800 text-center text-lg outline-0"
+            className="border rounded px-4 py-1 w-24 border-purple-500 text-purple-800 text-center text-lg outline-0 cursor-pointer"
             value={inputSeconds}
             onChange={(e) => handleInputChange(e, "seconds")}
             placeholder="Sec"

@@ -30,16 +30,16 @@ export default function CalendarButton() {
 
   // Close on outside click
   useEffect(() => {
-  const handleClick = (e: MouseEvent) => {
-    if (ref.current && !ref.current.contains(e.target as Node)) {
-      setOpenPopup(null);
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpenPopup(null);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClick);
     }
-  };
-  if (isOpen) {
-    document.addEventListener('mousedown', handleClick);
-  }
-  return () => document.removeEventListener('mousedown', handleClick);
-}, [isOpen, setOpenPopup]);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [isOpen, setOpenPopup]);
 
   return (
     <div className="relative inline-block" ref={ref}>
