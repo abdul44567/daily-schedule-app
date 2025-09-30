@@ -3,20 +3,17 @@ import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { PopupProvider } from "./components/PopupContext";
+import { UserProvider } from "./context/UserContext";
 
 export const metadata: Metadata = {
   title: "My Daily Schedule",
   description: "Personal schedule app",
-  icons: {
-    icon: "/logo.png",
-  },
+  icons: { icon: "/logo.png" },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <head>
@@ -26,11 +23,13 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased font-sans">
-        <PopupProvider>
-          <Header />
-          {children}
-          <Footer />
-        </PopupProvider>
+        <UserProvider>
+          <PopupProvider>
+            <Header />
+            {children}
+            <Footer />
+          </PopupProvider>
+        </UserProvider>
       </body>
     </html>
   );

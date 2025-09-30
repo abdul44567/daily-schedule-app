@@ -71,7 +71,7 @@ export default function Footer() {
           {[
             { href: "/", label: "Home" },
             { href: "/about", label: "About" },
-            { href: "/calendar", label: "Calendar" },
+            // { href: "/calendar", label: "Calendar" },
             { href: "/todo", label: "To-Do" },
             { href: "/clock-suite", label: "Clock Suite" },
             { href: "/Utilities", label: "Utilities" },
